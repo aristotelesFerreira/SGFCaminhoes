@@ -13,6 +13,17 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// Auth
+//Route::post('register', 'Auth\RegisterController@create');
+Route::post('auth/signin', 'AuthController@authenticate');
+Route::post('register', 'LoginController@login');
+
+    // Protected routes
+Route::group(['middleware' => 'jwt'], function () {
+
+  Route::resource('index', 'IndexController');
+
+  Route::get('test', function(){
+    return response()->json(['foo'=>'bar']);
+    });
 });
