@@ -7,6 +7,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use PHPUnit\Framework\MockObject\Stub\Exception;
+use App\Http\Resources\UserResource;
 
 class RegisterController extends Controller
 {
@@ -21,7 +27,6 @@ class RegisterController extends Controller
     |
     */
 
-    use RegistersUsers;
 
     /**
      * Where to redirect users after registration.
@@ -41,25 +46,10 @@ class RegisterController extends Controller
     }
 
     /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-    }
-
-    /**
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
-     * @return \App\User
+     * @return \App\Models\User
      */
     protected function create(array $data)
     {
@@ -68,5 +58,34 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        $data = $request->all();
+        $this->validate($request, [
+            'name' => 'string|required',
+            'email' => 'string|unique:users,email|required',
+            'password' => 'required|string|min:6',
+            'role' => 'string|required',
+            'status' => 'string|nullable',
+        ]);
+       
+        $data['password'] = bcrypt($data['password'] );
+        $user = new User($data);
+        $user->save();
+      
+        return new UserResource($user);
+
+    }
+
+    /**
+     * Get the guard to be used during registration.
+     *
+     * @return \Illuminate\Contracts\Auth\StatefulGuard
+     */
+    protected function guard()
+    {
+        return Auth::guard();
     }
 }
