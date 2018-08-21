@@ -15,14 +15,13 @@ use Illuminate\Http\Request;
 
 
 Route::post('auth/signin', 'AuthController@authenticate');
-Route::post('register', 'Auth\RegisterController@register');
+
 
 // Protected routes
-Route::group(['middleware' => 'jwt'], function () {
+Route::group(['middleware' => ['jwt', 'cors']], function () {
 
-  Route::resource('index', 'IndexController');
+    //Users
+    Route::post('register', 'Auth\RegisterController@register');
+    Route::get('users', 'UserController@index');
 
-  Route::get('teste', function(){
-    return response()->json(['foo'=>'bar']);
-    });
 });
