@@ -9,7 +9,7 @@ class UserResource extends Resource
 
     public function toArray($request)
     {
-        $request = $request->toArray();
+        //$request = $request->toArray();
         $response = [
             'id' => $this->id,
             'name'=> $this->name,

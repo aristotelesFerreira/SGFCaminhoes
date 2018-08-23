@@ -5,15 +5,33 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Webpatser\Uuid\Uuid;
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
     
     protected $fillable = [
-        'id', 'name', 'email', 'role', 'status', 'password', 'remember_token'
+        'uuid', 'id', 'name', 'email', 'role', 'status', 'password', 'remember_token'
     ];
     
+    public static function boot()
+    {   
+        parent::boot();
+        self::creating(function ($model) {
+            $model->uuid = (string) Uuid::generate(4);
+        });
+    }
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
+
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
